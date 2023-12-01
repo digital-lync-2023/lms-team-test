@@ -46,6 +46,7 @@ pipeline {
     post {
         success {
             // Push the Docker image to a container registry if needed
+            echo 'Build Success!'
             }
 
         failure {
