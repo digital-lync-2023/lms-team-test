@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker {
+        any {
             // Use a Docker image with Node.js and Angular CLI installed
             image 'node:18'
         }
