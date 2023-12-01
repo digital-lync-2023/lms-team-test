@@ -1,57 +1,22 @@
 pipeline {
-    agent {
-        any {
-            // Use a Docker image with Node.js and Angular CLI installed
-            image 'node:18'
-        }
-    }
-
-    environment {
-        // Define environment variables if needed
-        NODE_ENV = 'production'
-    }
-
+    agent any
     stages {
         stage('Checkout') {
             steps {
                 // Checkout the source code from your version control system (e.g., Git)
                 checkout scm
             }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                // Install Node.js dependencies
-                sh 'npm install'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                // Build the Angular application
-                sh 'npm run build -- --prod'
-            }
-        }
-
+        }        
         stage('Docker Build') {
             steps {
-                // Build the Docker image using the provided Dockerfile
-                script {
-                    docker.build('frontend:latest', '-f LMS-FE/dockerfile .')
-                }
+                sh 'cd LMS-FE && docker build -t frontend'
             }
         }
-    }
-
-    post {
-        success {
-            // Push the Docker image to a container registry if needed
-            echo 'Build Success!'
+  
+        stage {
+            steps{
+                sh 'docker run -dt --name fe -p 80:80 frontend'
             }
-
-        failure {
-            // Handle failure scenarios
-            echo 'Build failed! Take appropriate actions.'
         }
     }
 }
