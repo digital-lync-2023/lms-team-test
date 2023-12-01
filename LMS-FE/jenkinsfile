@@ -1,44 +1,56 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            // Use a Docker image with Node.js and Angular CLI installed
+            image 'node:18'
+        }
+    }
 
     environment {
         // Define environment variables if needed
-        NODE_HOME = tool 'NodeJS'
-        PATH = "$NODE_HOME/bin:$PATH"
-        NPM_REGISTRY = 'https://registry.npmjs.org/'
+        NODE_ENV = 'production'
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the source code from your version control system (e.g., Git)
+                checkout scm
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                // Install Node.js and npm
-                script {
-                    sh 'npm install'
-                }
+                // Install Node.js dependencies
+                sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                // Build Angular application
-                script {
-                    sh 'npm run build'
-                }
+                // Build the Angular application
+                sh 'npm run build -- --prod'
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Docker Build') {
             steps {
-                // Archive build artifacts (e.g., dist folder)
-                archiveArtifacts artifacts: 'dist/**/*', allowEmptyArchive: true
+                // Build the Docker image using the provided Dockerfile
+                script {
+                    docker.build('frontend:latest', '-f LMS-FE/dockerfile .')
+                }
             }
         }
     }
 
     post {
-        always {
-            // Clean up workspace and other tasks if needed
-            cleanWs()
+        success {
+            // Push the Docker image to a container registry if needed
+            }
+
+        failure {
+            // Handle failure scenarios
+            echo 'Build failed! Take appropriate actions.'
         }
     }
 }
