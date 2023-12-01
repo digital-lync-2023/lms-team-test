@@ -11,10 +11,9 @@ pipeline {
             steps {
                 sh 'cd LMS-FE && docker build -t frontend'
             }
-        }
-  
+        } 
         stage{
-            steps{
+            steps {
                 sh 'docker run -dt --name fe -p 80:80 frontend'
             }
         }
