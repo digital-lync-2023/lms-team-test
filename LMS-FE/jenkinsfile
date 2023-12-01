@@ -9,7 +9,7 @@ pipeline {
         }        
         stage ('Docker Build') {
             steps {
-                sh 'cd LMS-FE && docker build -t frontend'
+                sh 'cd LMS-FE && docker build -t frontend .'
             }
         } 
         stage ('container') {
