@@ -8,7 +8,7 @@ pipeline {
         }
        stage('Docker image rm') {
             steps {
-                sh 'docker rmi backend'
+                sh 'cd LMS-BE && docker rmi backend'
             }
         }
        stage('Docker Build') {
