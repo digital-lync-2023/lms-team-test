@@ -3,7 +3,12 @@ pipeline {
    stages {
        stage('Docker db') {
             steps {
-                sh 'docker container run -dt --name lmsdb -e MYSQL_ROOT_PASSWORD=Qwerty@123 -p 3309:3306 mysql:latest'
+                sh 'docker container run -dt --name lmsdb -e MYSQL_ROOT_PASSWORD=Qwerty@123 -p 3305:3306 mysql:latest'
+            }
+        }
+       stage('Docker image rm') {
+            steps {
+                sh 'docker rmi backend'
             }
         }
        stage('Docker Build') {
