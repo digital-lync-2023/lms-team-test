@@ -10,7 +10,7 @@ pipeline {
         stage('Docker build') {
             steps {
                 sh 'sudo docker rmi -f backend'
-                sh 'cd /var/lib/jenkins/workspace/backend/LMS-BE && sudo docker build -t backend .'
+                sh 'cd LMS-BE && sudo docker build -t backend .'
             }
           }
         stage('Docker container') {
