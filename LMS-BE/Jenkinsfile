@@ -6,8 +6,6 @@ pipeline {
                 script {
                         sh 'docker rm mysql || true'
                         sh 'docker run -dt --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Abc@123 mysql:latest'
-                    } else {
-                        echo 'MySQL container already exists'
                     }
                 }
             }
