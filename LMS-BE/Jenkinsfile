@@ -1,25 +1,28 @@
 pipeline {
     agent any
-    stages {
-        stage('Database Container Setup') {
+    stages{
+        stage('database container') {
             steps {
-                script {
-                        sh 'docker rm -f mysql'
-                        sh 'docker run -dt --name mysql1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Abc@123 mysql:latest'
-                    }
-                }
+                sh 'sudo docker container rm -f mysql'
+                sh 'sudo docker container run -d --name mysql -e MYSQL_ROOT_PASSWORD=Abc@123 -p 3306:3306 mysql:latest'
+             }
+          }
+        stage('Docker build') {
+            steps {
+                sh 'sudo docker rmi -f backend'
+                sh 'cd LMS-BE && sudo docker build -t backend .'
             }
-        stage('Backend Container Setup') {
+          }
+        stage('Docker container') {
             steps {
-                script {
-                    sh 'docker stop backend || true'
-                    sh 'docker rm -f backend || true'
-                    cd LMS-BE {
-                            sh 'docker build -t backend .'
-                            sh 'docker run -dt --name backend1 -p 8080:8080 --link mysql1:mysql backend'
-                        } 
-                    }
-                }
+                sh 'sudo docker container rm -f be'
+                sh 'sudo docker container run -dt --name be -p 8080:8080 backend'
             }
         }
+        stage('Docker') {
+            steps {
+                sh 'echo deployment done'
+               }
+          }
     }
+}
