@@ -4,8 +4,8 @@ pipeline {
         stage('Database Container Setup') {
             steps {
                 script {
-                        sh 'docker rm mysql || true'
-                        sh 'docker run -dt --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Abc@123 mysql:latest'
+                        sh 'docker rm -f mysql'
+                        sh 'docker run -dt --name mysql1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Abc@123 mysql:latest'
                     }
                 }
             }
@@ -13,10 +13,10 @@ pipeline {
             steps {
                 script {
                     sh 'docker stop backend || true'
-                    sh 'docker rm backend || true'
+                    sh 'docker rm -f backend || true'
                     cd LMS-BE {
                             sh 'docker build -t backend .'
-                            sh 'docker run -dt --name backend -p 8080:8080 backend'
+                            sh 'docker run -dt --name backend1 -p 8080:8080 --link mysql1:mysql backend'
                         } 
                     }
                 }
