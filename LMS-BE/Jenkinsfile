@@ -1,28 +1,38 @@
 pipeline {
     agent any
-    stages{
-        stage('database container') {
+    stages {
+        stage('Database Container Setup') {
             steps {
-                sh 'sudo docker container rm -f mysql'
-                sh 'sudo docker container run -d --name mysql -e MYSQL_ROOT_PASSWORD=Abc@123 -p 3306:3306 mysql:latest'
-             }
-          }
-        stage('Docker build') {
-            steps {
-                sh 'sudo docker rmi -f backend'
-                sh 'cd LMS-BE && sudo docker build -t backend .'
-            }
-          }
-        stage('Docker container') {
-            steps {
-                sh 'sudo docker container rm -f be'
-                sh 'sudo docker container run -dt --name be -p 8080:8080 backend'
+                script {
+                    def mysqlContainerStatus = sh(script: 'docker inspect -f {{.State.Running}} mysql', returnStatus: true)
+                    if (mysqlContainerStatus != 0) {
+                        echo 'MySQL container does not exist, creating...'
+                        sh 'docker rm mysql || true'
+                        sh 'docker run -dt --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=Abc@123 mysql:latest'
+                    } else {
+                        echo 'MySQL container already exists'
+                    }
+                }
             }
         }
-        stage('Docker') {
+        stage('Backend Container Setup') {
             steps {
-                sh 'echo deployment done'
-               }
-          }
+                script {
+                    sh 'docker stop backend || true'
+                    sh 'docker rm backend || true'
+                    dir('LMS-BE') {
+                        try {
+                            sh 'docker build -t backend .'
+                            sh 'docker run -dt --name backend -p 8080:8080 backend'
+                            sh 'sudo systemctl daemon-reload && sudo systemctl start lms-be && sudo systemctl enable lms-be'
+                        } catch (Exception e) {
+                            error "Error building or running the backend container: ${e.message}"
+                        } finally {
+                            // Clean up resources or perform actions that need to be done regardless of success or failure
+                        }
+                    }
+                }
+            }
+        }
     }
 }
